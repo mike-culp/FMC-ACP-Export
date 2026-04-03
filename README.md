@@ -1,166 +1,171 @@
-# FMC ACP Exporter
+# FMC-ACP-Exporter
 
 ## Overview
 
-FMC-ACP-Exporter is a Python-based tool designed to export Cisco Secure Firewall Management Center (FMC) Access Control Policies (ACP) into structured formats for analysis, reporting, and automation.
+FMC-ACP-Exporter is a Python-based tool designed to interact with Cisco Secure Firewall Management Center (FMC) APIs to export Access Control Policy (ACP) data in structured formats.
 
-The tool connects to the FMC API, retrieves Access Control Policies and their rules, and outputs the data in JSON or CSV format.
-
----
-
-## Features
-
-- Retrieve Access Control Policies (ACP) from FMC
-- Export full rule sets for a selected policy
-- Support for:
-  - JSON output (structured, hierarchical)
-  - CSV output (flattened, report-friendly)
-- Modular design for easy extension
-- Clean separation of API interaction and output formatting
+The tool supports:
+- Listing available Access Control Policies
+- Exporting policy rule data
+- Outputting results in JSON or CSV format
+- Modular architecture for future expansion
 
 ---
 
 ## Project Structure
 
-FMC-ACP-Exporter
-├── src
-│   ├── auth.py        # FMC authentication (token handling)
-│   ├── client.py      # FMC API communication
-│   ├── config.py      # Configuration (FMC host, credentials)
-│   ├── exporter.py    # ACP and rule export logic
-│   ├── formatter.py   # JSON and CSV formatting
-│   └── main.py        # CLI entry point
-│
-├── output            # Generated export files (ignored by git)
-│   ├── *.json
-│   └── *.csv
-│
-├── .gitignore
-└── README.md
+FMC-ACP-Exporter/
+- src/
+  - main.py          (Entry point / CLI interface)
+  - client.py        (FMC API communication)
+  - auth.py          (Authentication handling)
+  - config.py        (Configuration - FMC host, credentials, etc.)
+  - models.py        (Data structures)
+  - services/        (Business logic - policies, rules, etc.)
+  - formatters/      (Output formatting - JSON, CSV)
+- output/            (Generated output files - ignored by git)
+- .gitignore
+- README.md
 
 ---
 
 ## Requirements
 
-- Python 3.9 or higher
-- Access to FMC (on-prem or virtual)
-- FMC API credentials
+- Python 3.9+
+- Access to FMC API
+- FMC credentials (username/password or token-based depending on implementation)
 
 ---
 
 ## Configuration
 
-Update your FMC connection details in config.py or via environment variables:
+Update your FMC connection details in:
 
-- FMC host or IP
-- Username
-- Password
+src/config.py
+
+Example:
+
+FMC_HOST = "https://your-fmc-host"
+USERNAME = "your_username"
+PASSWORD = "your_password"
 
 ---
 
 ## Usage
 
-### List Available Policies
+General syntax:
+
+python src/main.py [OPTIONS]
+
+---
+
+## Available Options
+
+- --list-policies       List all Access Control Policies
+- --policy-id <id>      Export a specific Access Control Policy
+- --json                Output results in JSON format
+- --csv                 Output results in CSV format
+- --output-dir <dir>    Specify output directory (default: ./output)
+
+---
+
+## Examples
+
+1. List Available Policies
 
 python src/main.py --list-policies
 
----
+Example output:
 
-### Export a Policy
-
-python src/main.py --policy-id <POLICY_ID>
-
----
-
-### Export with Output Format
-
-python src/main.py --policy-id <POLICY_ID> --json
-python src/main.py --policy-id <POLICY_ID> --csv
+Available Access Control Policies:
+1. DA_Policy (00000000-0000-0ed3-0000-064424585866)
+2. DA_policy_copy (00000000-0000-0ed3-0000-167504089256)
+3. dflt (00000000-0000-0ed3-0000-042950195890)
 
 ---
 
-## Example Workflow
+2. Export Policy as JSON
 
-1. Run the tool to list available policies
-2. Copy the desired Policy ID
-3. Export the policy using JSON or CSV
+python src/main.py --policy-id 00000000-0000-0ed3-0000-064424585866 --json
 
----
+Output file:
 
-## Output
-
-Exports are written to the output directory.
-
-### JSON Output
-
-- Preserves full hierarchy:
-  - Policy
-  - Rules
-  - Conditions (source, destination, applications, etc.)
-
-### CSV Output
-
-- Flattened structure for:
-  - Excel analysis
-  - Reporting
-  - Auditing
+output/policy_<id>.json
 
 ---
 
-## Example Fields (CSV)
+3. Export Policy as CSV
 
-- policy_name
-- rule_name
-- action
-- source_zones
-- destination_zones
-- source_networks
-- destination_networks
-- applications
-- ports
-- logging
-- enabled
+python src/main.py --policy-id 00000000-0000-0ed3-0000-064424585866 --csv
+
+Output file:
+
+output/policy_<id>.csv
 
 ---
 
-## Design Principles
+4. Export to Custom Directory
 
-- Read-only operations (no changes to FMC)
-- Clarity over complexity
-- Modular architecture
-- Extensible for future enhancements
+python src/main.py --policy-id 00000000-0000-0ed3-0000-064424585866 --json --output-dir ./exports
+
+---
+
+## Output Formats
+
+JSON:
+- Full structured representation of policy rules
+- Ideal for automation and further processing
+
+CSV:
+- Flattened rule data
+- Ideal for Excel analysis or reporting
+
+---
+
+## Design Notes
+
+- CLI is modular and designed for extensibility
+- Separation of concerns:
+  - CLI parsing (main.py)
+  - API interaction (client.py)
+  - Business logic (services/)
+  - Output formatting (formatters/)
+- Easily extendable to:
+  - NAT policies
+  - Object exports
+  - Rule filtering
+  - UI (Streamlit)
 
 ---
 
 ## Future Enhancements
 
-- Rule filtering (by action, zone, application)
+- Streamlit UI for interactive usage
+- Filtering (rule name, action, zones, etc.)
 - Multi-policy export
-- Object resolution (expand network or object groups)
-- Simple UI (Streamlit or similar)
-- Policy comparison and diffing
+- Object resolution (networks, ports, URLs)
+- Delta comparison between policies
 
 ---
 
-## Git Ignore Notes
+## Git Notes
 
-Ensure output files are excluded:
+Ensure output files are ignored:
 
 /output/*.json
 /output/*.csv
-.DS_Store
-src/.DS_Store
 
 ---
 
-## Disclaimer
+## Quick Test Checklist
 
-This tool uses the FMC API and requires appropriate access permissions.
-Ensure credentials are handled securely.
+python src/main.py -h
+python src/main.py --list-policies
+python src/main.py --policy-id <id> --json
+python src/main.py --policy-id <id> --csv
 
 ---
 
-## Author
+## Summary
 
-Mike Culp
-Cisco Security Consulting Engineer Technical Lead
+This tool provides a clean, extensible foundation for interacting with FMC Access Control Policies programmatically, enabling both operational visibility and automation workflows.
