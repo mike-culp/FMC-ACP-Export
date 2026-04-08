@@ -103,7 +103,7 @@ python src/main.py --json --output-dir exports
 
 Example interaction:
 
-FMC IP/Hostname: 10.1.1.1  
+FMC IP/Hostname: 198.51.100.58  
 Username: admin  
 Password:  
 Verify TLS certificate? [y/N]: n  
