@@ -207,10 +207,8 @@ marimo/_lsp/
 __marimo__/
 
 #output files
-/output/*.json
-/output/*.csv
-
-
+/output/*
+!/output/.gitkeep
 
 .DS_Store
 .env
