@@ -1,5 +1,5 @@
+# auth.py
 import json
-import requests
 
 from models import AuthenticationError
 
@@ -16,7 +16,6 @@ class FmcAuthenticator:
         response = self.session.post(
             url,
             auth=(self.credentials.username, self.credentials.password),
-            verify=self.config.verify_tls,
         )
 
         if response.status_code >= 400:

@@ -1,3 +1,4 @@
+# client.py
 import requests
 
 from auth import FmcAuthenticator
@@ -9,6 +10,7 @@ class FmcClient:
         self.config = config
         self.credentials = credentials
         self.session = requests.Session()
+        self.session.verify = config.verify_tls
         self.domain_uuid = None
 
     def login(self):
@@ -34,7 +36,7 @@ class FmcClient:
         return self._get(f"/policy/prefilterpolicies/{policy_id}")
 
     def _get(self, path):
-        r = self.session.get(self._url(path), verify=self.config.verify_tls)
+        r = self.session.get(self._url(path))
         if r.status_code >= 400:
             raise ApiError(r.text)
         return r.json()
@@ -46,7 +48,7 @@ class FmcClient:
 
         while True:
             params = {"offset": offset, "limit": 1000, "expanded": "true"}
-            r = self.session.get(url, params=params, verify=self.config.verify_tls)
+            r = self.session.get(url, params=params)
 
             if r.status_code >= 400:
                 raise ApiError(r.text)

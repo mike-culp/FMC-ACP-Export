@@ -1,5 +1,8 @@
+# main.py
 import argparse
 from pathlib import Path
+
+import urllib3
 
 from client import FmcClient
 from models import FmcConfig, FmcCredentials
@@ -21,12 +24,16 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    base, user, pwd = prompt_connection()
+    base, user, pwd, verify_tls = prompt_connection()
+
+    if not verify_tls:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        print("WARNING: TLS verification is disabled. Certificate validation will be skipped.")
 
     check_connectivity(base, 15)
 
     client = FmcClient(
-        FmcConfig(base_url=base),
+        FmcConfig(base_url=base, verify_tls=verify_tls),
         FmcCredentials(user, pwd),
     )
 
